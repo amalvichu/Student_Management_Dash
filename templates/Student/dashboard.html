@@ -1,0 +1,202 @@
+{% extends 'Student/base.html' %}
+
+{% block content %}
+<div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-slate-800">University Dashboard</h1>
+        <p class="text-slate-500 mt-1">Manage student records and track their achievements.</p>
+    </div>
+    <a href="{% url 'student_create' %}"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl shadow-md font-medium transition flex items-center gap-2 transform hover:-translate-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Add New Student
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+        <div class="p-4 bg-indigo-50 text-indigo-600 rounded-xl">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                </path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Enrolled</p>
+            <h3 class="text-3xl font-bold text-slate-800">{{ total_students }}</h3>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+        <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                </path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">System Status</p>
+            <h3 class="text-xl font-bold text-slate-800 mt-1">Active</h3>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+        <h3 class="text-lg font-bold text-slate-800 mb-4 self-start">Department Distribution</h3>
+        <div class="w-full h-[300px] flex justify-center">
+            <canvas id="deptChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+        <h3 class="text-lg font-bold text-slate-800 mb-4 self-start">University Achievements</h3>
+        <div class="w-full h-[300px] flex justify-center">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
+        <h2 class="text-lg font-semibold text-slate-800">Student Directory</h2>
+
+        <div class="relative w-full md:w-96">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+
+            <input type="text" id="liveSearchInput" placeholder="Search by Name, Reg No, or Dept..." 
+                   class="block w-full py-2.5 pl-10 pr-24 text-sm text-slate-800 border border-slate-300 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm outline-none">
+
+            <div class="absolute inset-y-0 right-0 flex items-center pr-1.5">
+                <button type="button" class="px-4 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition">
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-semibold tracking-wider">
+                <tr>
+                    <th class="px-6 py-4">Register No.</th>
+                    <th class="px-6 py-4">Name</th>
+                    <th class="px-6 py-4">Department</th>
+                    <th class="px-6 py-4">Batch</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody" class="divide-y divide-slate-100">
+                {% for student in students %}
+                <tr class="hover:bg-slate-50 transition duration-150">
+                    <td class="px-6 py-4 font-bold text-slate-800">{{ student.register_number }}</td>
+                    <td class="px-6 py-4 font-medium">{{ student.name }}</td>
+                    <td class="px-6 py-4">{{ student.department }}</td>
+                    <td class="px-6 py-4">{{ student.batch }}</td>
+                    <td class="px-6 py-4">
+                        {% if student.status == 'Active' %}
+                        <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Active</span>
+                        {% else %}
+                        <span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <a href="{% url 'student_detail' student.id %}" class="inline-block bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition">View</a>
+                        <a href="{% url 'student_update' student.id %}" class="inline-block bg-sky-100 hover:bg-sky-200 text-sky-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition">Edit</a>
+                        <a href="{% url 'student_delete' student.id %}" class="inline-block bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-slate-500">No student records found.</td>
+                </tr>
+                {% endfor %}
+                <tr id="noResultsRow" style="display: none;">
+                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">No students match your search.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // --- 1. Live Search Logic ---
+    document.getElementById('liveSearchInput').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#studentTableBody tr:not(#noResultsRow)");
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            let text = row.textContent.toLowerCase();
+            if (text.includes(filter)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        // Show "No Results" row if nothing matched
+        document.getElementById('noResultsRow').style.display = visibleCount === 0 ? "" : "none";
+    });
+
+    // --- 2. Safely Load Data for Charts (Fixes red squiggles in editor) ---
+    // Using JSON.parse with escapejs prevents editor syntax errors and handles empty data safely.
+    const deptLabels = JSON.parse('{{ dept_labels|escapejs }}' || '[]');
+    const deptCounts = JSON.parse('{{ dept_counts|escapejs }}' || '[]');
+    const statusLabels = JSON.parse('{{ status_labels|escapejs }}' || '[]');
+    const statusCounts = JSON.parse('{{ status_counts|escapejs }}' || '[]');
+
+    // --- 3. Render Department Pie Chart ---
+    if (deptLabels.length > 0) {
+        new Chart(document.getElementById('deptChart').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: deptLabels,
+                datasets: [{
+                    data: deptCounts,
+                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    // --- 4. Render Status Doughnut Chart ---
+    if (statusLabels.length > 0) {
+        new Chart(document.getElementById('statusChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                cutout: '70%'
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+# Python environment
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3
+
+# Uploaded Media Files
+media/
+
+# Environment variables (if you use them later)
+.env
